@@ -27,7 +27,7 @@ func checkDiff(a int, b int) (string, float64) {
 }
 
 func main() {
-	file, err := os.Open("./data")
+	file, err := os.Open("./testData")
 	check(err)
 	defer file.Close()
 	var safe int
@@ -56,10 +56,12 @@ func main() {
 					numUnsafe++
 					continue
 				}
+
 				lastIter = increasing
 			}
 		}
-		if numUnsafe > 1 {
+
+		if numUnsafe > 0 {
 			unsafe++
 			fmt.Println("unsafe")
 		} else {
