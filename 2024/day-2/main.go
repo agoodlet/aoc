@@ -94,8 +94,6 @@ func checkSafe(list []string) bool {
 	// otherwise we are unsafe
 	// if we are unsafe, check our dampened report
 	if numUnsafe > 0 {
-		// pc, _, _, _ := runtime.Caller(1)
-		// fn := runtime.FuncForPC(pc)
 		if checkCaller() == "main.checkDampener" {
 			return false
 		}
