@@ -54,7 +54,7 @@ func checkDampener(list []string) bool {
 }
 
 func checkCaller() string {
-	pc, _, _, _ := runtime.Caller(1)
+	pc, _, _, _ := runtime.Caller(2)
 	fn := runtime.FuncForPC(pc)
 
 	fmt.Print(fn.Name())
@@ -94,9 +94,9 @@ func checkSafe(list []string) bool {
 	// otherwise we are unsafe
 	// if we are unsafe, check our dampened report
 	if numUnsafe > 0 {
-		pc, _, _, _ := runtime.Caller(1)
-		fn := runtime.FuncForPC(pc)
-		if fn.Name() == "main.checkDampener" {
+		// pc, _, _, _ := runtime.Caller(1)
+		// fn := runtime.FuncForPC(pc)
+		if checkCaller() == "main.checkDampener" {
 			return false
 		}
 		return checkDampener(list)
