@@ -15,7 +15,7 @@ func check(e error) {
 	}
 }
 
-func checkDiff(a int, b int) (string, float64) {
+func checkDiff(a int, b int) (string, int) {
 	direction := "increasing"
 	diff := a - b
 
@@ -23,7 +23,57 @@ func checkDiff(a int, b int) (string, float64) {
 		direction = "decreasing"
 	}
 
-	return direction, math.Abs(float64(diff))
+	return direction, int(math.Abs(float64(diff)))
+}
+
+// take in an index and remove it from the array
+func filter(list []string, index int) []string {
+	list[index] = list[len(list)-1]
+	return list[:len(list)-1]
+}
+
+// only run this fun on unsafe lists
+func checkDampener(list []string) {
+	for i := range list {
+		newList := filter(list, i)
+		// pass into func to determine if safe
+		checkSafe(newList)
+		// if any of these are now safe we can mark this as safe
+	}
+}
+
+func checkSafe(list []string) bool {
+	numUnsafe := 0
+	lastIter := ""
+	// loop through array
+	for i, e := range list {
+		if i+1 < len(list) {
+			charInt, err := strconv.Atoi(e)
+			check(err)
+			nextCharInt, err := strconv.Atoi(list[i+1])
+			check(err)
+
+			// find diff between i and i+1
+			increasing, diff := checkDiff(charInt, nextCharInt)
+
+			// if all diffs are 0 > x > 3 we are safe
+			if diff < 1 || diff > 3 {
+				numUnsafe++
+				continue
+			}
+			// if all diffs are positive we are safe
+			// if all diffs are negative we are safe
+			if lastIter != "" && lastIter != increasing {
+				numUnsafe++
+				continue
+			}
+
+			lastIter = increasing
+
+		}
+	}
+	// otherwise we are unsafe
+	return numUnsafe <= 0
 }
 
 func main() {
@@ -35,33 +85,8 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		lastIter := ""
 		charArray := strings.Fields(scanner.Text())
-		numUnsafe := 0
-		for i, char := range charArray {
-			if i+1 < len(charArray) {
-				charInt, err := strconv.Atoi(char)
-				check(err)
-				nextCharInt, err := strconv.Atoi(charArray[i+1])
-				check(err)
-
-				increasing, diff := checkDiff(charInt, nextCharInt)
-				if diff < 1 || diff > 3 {
-					numUnsafe++
-					continue
-				}
-
-				// if increasing does not equal the previous iteration of increasing
-				if lastIter != "" && lastIter != increasing {
-					numUnsafe++
-					continue
-				}
-
-				lastIter = increasing
-			}
-		}
-
-		if numUnsafe > 0 {
+		if !checkSafe(charArray) {
 			unsafe++
 			fmt.Println("unsafe")
 		} else {
