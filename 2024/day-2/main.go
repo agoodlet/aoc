@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -28,18 +29,36 @@ func checkDiff(a int, b int) (string, int) {
 
 // take in an index and remove it from the array
 func filter(list []string, index int) []string {
-	list[index] = list[len(list)-1]
-	return list[:len(list)-1]
+	newList := make([]string, 0, len(list)-1)
+	newList = append(newList, list[:index]...)
+	newList = append(newList, list[index+1:]...)
+
+	return newList
 }
 
 // only run this fun on unsafe lists
-func checkDampener(list []string) {
+func checkDampener(list []string) bool {
 	for i := range list {
+		fmt.Println(i)
 		newList := filter(list, i)
 		// pass into func to determine if safe
-		checkSafe(newList)
-		// if any of these are now safe we can mark this as safe
+		if checkSafe(newList) {
+			// if any of these are now safe we can mark this as safe
+			return true
+		} else {
+			// otherwise we check the next index
+			continue
+		}
 	}
+	return false
+}
+
+func checkCaller() string {
+	pc, _, _, _ := runtime.Caller(1)
+	fn := runtime.FuncForPC(pc)
+
+	fmt.Print(fn.Name())
+	return fn.Name()
 }
 
 func checkSafe(list []string) bool {
@@ -73,11 +92,20 @@ func checkSafe(list []string) bool {
 		}
 	}
 	// otherwise we are unsafe
-	return numUnsafe <= 0
+	// if we are unsafe, check our dampened report
+	if numUnsafe > 0 {
+		pc, _, _, _ := runtime.Caller(1)
+		fn := runtime.FuncForPC(pc)
+		if fn.Name() == "main.checkDampener" {
+			return false
+		}
+		return checkDampener(list)
+	}
+	return true
 }
 
 func main() {
-	file, err := os.Open("./testData")
+	file, err := os.Open("./data")
 	check(err)
 	defer file.Close()
 	var safe int
@@ -95,5 +123,5 @@ func main() {
 		}
 	}
 
-	fmt.Println(safe, unsafe)
+	fmt.Println("safe: ", safe, "unsafe: ", unsafe)
 }
