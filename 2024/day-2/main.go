@@ -57,7 +57,6 @@ func checkCaller() string {
 	pc, _, _, _ := runtime.Caller(2)
 	fn := runtime.FuncForPC(pc)
 
-	fmt.Print(fn.Name())
 	return fn.Name()
 }
 
